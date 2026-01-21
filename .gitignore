@@ -14,3 +14,6 @@ __pucache__/
 # Mac OS-specific storage files
 .DS_Store
 
+# OSMnx cache
+.cache/
+osmnx_cache/
