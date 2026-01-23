@@ -19,5 +19,4 @@ __pucache__/
 osmnx_cache/
 
 # External raw data (GTFS)
-data/raw
-*.zip
+data/raw/*.zip
