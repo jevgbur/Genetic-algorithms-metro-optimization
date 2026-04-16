@@ -8,7 +8,7 @@ env.bak/
 venv.bak/
 
 # Python cache
-__pucache__/
+__pycache__/
 *.pyc
 
 # Mac OS-specific storage files
@@ -17,6 +17,7 @@ __pucache__/
 # OSMnx cache
 .cache/
 osmnx_cache/
+**/cache/
 
 # External raw data (GTFS)
 data/raw/*.zip
