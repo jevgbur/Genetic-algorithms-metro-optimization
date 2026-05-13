@@ -306,13 +306,14 @@ def normalize_generation(generation):
             / (max_nodes - min_nodes)
         )
        
+        
         kid["Shortest_normalized"] = (
-            (max_short - kid["AVG_Shortest Path"])
+            (kid["AVG_Shortest Path"] - min_short)
             / (max_short - min_short)
         )
 
         kid["Transfer_normalized"] = (
-            (max_transfer - kid["Average transfers"])
+            (kid["Average transfers"] - min_transfer)
             / (max_transfer - min_transfer)
         )
         
