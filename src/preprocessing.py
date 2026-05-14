@@ -16,7 +16,9 @@ import pickle
 
 
 def generate_trip_weight(df, rangestart, rangestop):
-
+    '''
+    This function generates random weights for trips between pairs of nodes in the given dataframe. 
+    '''
     # Set a seed so we dont need to save the file locally
     random.seed(154)
 
@@ -61,6 +63,12 @@ def generate_trip_weight(df, rangestart, rangestop):
     return pair_df
 
 def generate_trip_weight_V2(df, population_col="weight", seed=154):
+    '''
+    This function generates random weights for trips between pairs of nodes in the given dataframe. 
+    The weight is a random integer between 0 and the sum of the population of the origin and destination nodes. 
+    This allows for a more realistic distribution of trip weights, as it takes into account the population of 
+    the areas represented by the nodes.
+    '''
 
     # Set a seed so results are reproducible
     random.seed(seed)
@@ -112,6 +120,9 @@ def generate_trip_weight_V2(df, population_col="weight", seed=154):
     return pair_df
 
 def create_weights(df, od_df):
+    '''
+    This function creates a new dataframe with weights for each node based on the trip weights between pairs of nodes.
+    '''
     weighted_df = df.copy()
     weighted_df["weight"] = ""
 
@@ -131,6 +142,9 @@ def create_weights(df, od_df):
     return weighted_df
 
 def finding_neighbors(pointes_weighted, grid):
+    '''
+    This function finds the neighboring hexagons for each hexagon in the grid and adds this information to the grid dataframe.
+    '''
     weighted_grid = grid.copy()
 
     weighted_grid = weighted_grid.merge(
@@ -165,6 +179,9 @@ def remove_tiny_islands(geom, min_area):
 
 ## Create_grid_1
 def Create_grid_1(res, prompt_1, proj_crs, prompt_2=False, prompt_3=False, return_points=False):
+    '''
+    This function creates a grid of hexagons based on the provided prompts and resolution.
+    '''
     # Start with prompt_1
     prompt_1_gdf = ox.geocode_to_gdf(prompt_1)
     merged_geom = prompt_1_gdf.union_all()
@@ -250,6 +267,12 @@ def Create_grid_1(res, prompt_1, proj_crs, prompt_2=False, prompt_3=False, retur
         return grid_inside
 
 def clean_postal_codes(path):
+    '''
+    This function reads a CSV file containing postal codes and population data, cleans the data, and returns a DataFrame with postal codes and their corresponding populations. 
+    It ensures that postal codes are in the correct format (4 digits) and that population values are numeric. 
+    The function also handles any missing or malformed data by dropping rows with invalid postal codes or population values.
+    The resulting DataFrame can be used for further analysis or integration with other datasets.
+    '''
     file_path = Path(path)
     rows = []
 

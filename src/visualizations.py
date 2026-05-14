@@ -16,6 +16,11 @@ import pickle
 
 # -------- LINE CREATION --------
 def create_line(p1_id, p2_id, gdf_stops):
+    '''
+    This function creates a LineString geometry between two points (p1 and p2) based on their IDs and a GeoDataFrame of stops.
+    It retrieves the geometries of the two points from the GeoDataFrame using their IDs and then creates a LineString connecting them.
+    The resulting LineString can be used to represent a route or connection between the two stops in a spatial context, such as in a metro or transportation network visualization.
+    '''
     p1 = gdf_stops.loc[
         gdf_stops["cell_id"] == p1_id, "geometry"
     ].iloc[0]
@@ -28,6 +33,11 @@ def create_line(p1_id, p2_id, gdf_stops):
 
 # -------- BUILD SOLUTION EDGES --------
 def metro_edges_gdf(solution_routes_dict, gdf_stops):
+    '''
+    This function builds a GeoDataFrame of edges representing the routes in the solution.
+    It iterates through the routes in the solution, creates LineString geometries for each pair of consecutive stops, and stores them in a GeoDataFrame along with the route ID.
+    The resulting GeoDataFrame can be used for visualizing the metro routes on a map or for further spatial analysis.
+    '''
     records = []
 
     for route_id, route in solution_routes_dict.items():
@@ -52,6 +62,11 @@ def metro_edges_gdf(solution_routes_dict, gdf_stops):
 
 # -------- BUILD G_METRO EDGES --------
 def build_graph_edges_gdf(G, gdf_stops, node_col="cell_id"):
+    '''
+    This function builds a GeoDataFrame of edges representing the connections in the graph G.
+    It iterates through the edges in the graph, creates LineString geometries for each pair of connected nodes, and stores them in a GeoDataFrame along with the from_node and to_node IDs.
+    The resulting GeoDataFrame can be used for visualizing the graph connections on a map or for further spatial analysis.
+    '''
     records = []
 
     valid_nodes = set(gdf_stops[node_col])
@@ -75,6 +90,11 @@ def build_graph_edges_gdf(G, gdf_stops, node_col="cell_id"):
 
 # -------- BUILD EDGES --------
 def build_edges_gdf(solution_routes_dict, gdf_stops):
+    '''
+    This function builds a GeoDataFrame of edges representing the routes in the solution.
+    It iterates through the routes in the solution, creates LineString geometries for each pair of consecutive stops, and stores them in a GeoDataFrame along with the route ID.
+    The resulting GeoDataFrame can be used for visualizing the metro routes on a map or for further spatial analysis.
+    '''
     records = []
 
     for route_id, route in solution_routes_dict.items():

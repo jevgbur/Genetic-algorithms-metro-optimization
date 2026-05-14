@@ -6,6 +6,11 @@ from itertools import combinations
 import geopandas as gpd
 
 def extension_cal_scoreV2(G, od_df, neighbor_df, pair_weights, G_metro=None):
+    '''
+    This function calculates the score of a given network design (G) based on demand coverage, 
+    average shortest path length, and average transfers. It can also incorporate an existing metro network (G_metro) 
+    into the evaluation.      
+    '''
     # combine existing metro + candidate network
     if G_metro is not None:
         evaluation_graph = G_metro.copy()
@@ -59,7 +64,11 @@ def extension_cal_scoreV2(G, od_df, neighbor_df, pair_weights, G_metro=None):
 
     return evaluation_score, average_shortest_path, average_transfers
 
-def cal_scoreV2(G, od_df, neighbor_df, pair_weights):  
+def cal_scoreV2(G, od_df, neighbor_df, pair_weights): 
+    '''
+    This function calculates the score of a given network design (G) based on demand coverage, 
+    average shortest path length, and average transfers.
+    '''
     demand_graph = G.copy()
     vicinity_lookup = neighbor_df.set_index("cell_id")["vicinity"].to_dict()
     nodes_to_add = set()
@@ -107,6 +116,9 @@ def cal_scoreV2(G, od_df, neighbor_df, pair_weights):
     return evaluation_score, average_shortest_path, average_transfers
 
 def select_parents(generation, top_performers, random_performers, sample_size, number_of_parents):
+    '''
+    Selects parent solutions for the next generation based on their performance.
+    '''
     best_performing = []
     sorted_gen = sorted(generation, key=lambda x: x["Score as %"], reverse=True)
     for i in range(top_performers):
@@ -127,7 +139,9 @@ def select_parents(generation, top_performers, random_performers, sample_size, n
     return best_performing
 
 def extension_TriangleCheck(poss_neighbors, valid_connections, route_current, G_metro):
-
+    '''
+    Checks for triangular connections in the route.
+    '''
     curr_node = route_current[-1]
     
     passed_neighbors = []
@@ -154,7 +168,9 @@ def extension_TriangleCheck(poss_neighbors, valid_connections, route_current, G_
     return passed_neighbors, neighbor_weights
 
 def TriangleCheck(poss_neighbors, valid_connections, route_current):
-
+    '''
+    Checks for triangular connections in the route.
+    '''
     passed_neighbors = []
     neighbor_weights = []
 
@@ -175,6 +191,12 @@ def TriangleCheck(poss_neighbors, valid_connections, route_current):
     return passed_neighbors, neighbor_weights
 
 def deadend_handeling(neighbor_nodes, route_current, min_stops, has_reversed):
+    '''
+    This function handles dead-ends in the route. 
+    If there are no neighboring nodes to extend the route, it checks if the current route has fewer stops than the 
+    minimum required. If so, it reverses the route and allows for one more extension attempt. 
+    If there are still no neighbors after reversing, it stops the route.
+    '''
     if not neighbor_nodes:
         if len(route_current) < min_stops and not has_reversed:
             route_current.reverse()
@@ -187,8 +209,14 @@ def deadend_handeling(neighbor_nodes, route_current, min_stops, has_reversed):
 
 def extenstion_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None, G_metro=None):
     '''
-    needs to be done
-    '''
+     This crossover function uses a breadth-first search approach to combine routes from two parent solutions.
+     It randomly selects two parent solutions and iterates through their routes. For each route, it randomly decides
+     whether to take the route from the first or second parent. 
+     It then applies mutation to the selected route before adding it to the new child solution. 
+     
+     This method allows for a more diverse combination of routes while still 
+     incorporating mutation to explore new possibilities.
+     '''
     
     new_kid = {}
 
@@ -215,9 +243,14 @@ def extenstion_crossover(parents, grid_neighbours, mutation_rate=0, valid_connec
 
 def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None):
     '''
-    needs to be done
-    '''
-    
+     This crossover function uses a breadth-first search approach to combine routes from two parent solutions.
+     It randomly selects two parent solutions and iterates through their routes. For each route, it randomly decides
+     whether to take the route from the first or second parent. 
+     It then applies mutation to the selected route before adding it to the new child solution. 
+     
+     This method allows for a more diverse combination of routes while still 
+     incorporating mutation to explore new possibilities.
+     '''
     new_kid = {}
     index_list = random.sample(range(0, len(parents)), 2)  
 
@@ -242,8 +275,14 @@ def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None)
 
 def bfs_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None):
     '''
-    needs to be done
-    '''
+     This crossover function uses a breadth-first search approach to combine routes from two parent solutions.
+     It randomly selects two parent solutions and iterates through their routes. For each route, it randomly decides
+     whether to take the route from the first or second parent. 
+     It then applies mutation to the selected route before adding it to the new child solution. 
+     
+     This method allows for a more diverse combination of routes while still 
+     incorporating mutation to explore new possibilities.
+     '''
     
     new_kid = {}
     index_list = random.sample(range(0, len(parents)), 2)
@@ -268,6 +307,13 @@ def bfs_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=N
     return new_kid
 
 def extenstion_mutation(route, mutation_rate, grid_neighbours, valid_connections, G_metro):
+    '''
+    This function applies mutation to a given route. 
+    The mutation can be one of three types: 
+    - changing the end node
+    - removing the end node
+    - adding a new node at the end. 
+    '''
     ### "This whole function could be written nicer" - Jev
     mutation_cause = np.random.choice([True, False], size=1, p=[mutation_rate, 1-mutation_rate])
 
@@ -328,6 +374,13 @@ def extenstion_mutation(route, mutation_rate, grid_neighbours, valid_connections
     return route
 
 def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
+    '''
+    This function applies mutation to a given route. 
+    The mutation can be one of three types: 
+    - changing the end node
+    - removing the end node
+    - adding a new node at the end. 
+    '''
     ### "This whole function could be written nicer" - Jev
     mutation_cause = np.random.choice([True, False], size=1, p=[mutation_rate, 1-mutation_rate])
 
@@ -387,6 +440,10 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
 
 
 def count_transfers(G, path):
+    '''
+    This function counts the number of transfers in a given path.
+    A transfer is counted whenever the "route" attribute of the edges changes along the path.
+    '''
     if len(path) < 2:
         return 0
 
@@ -404,7 +461,9 @@ def count_transfers(G, path):
     return transfers
 
 def normalize_generation(generation):
-    
+    '''
+    This function normalizes the metrics of the generation and calculates a final score for each solution.
+    '''
     nodes = []
     edges = []
     shortest_paths = []
@@ -472,35 +531,12 @@ def allocate_population_to_hexagons(grid, postal_gdf, population_df,
                                     population_code_col="postal_code",
                                     population_col="population"):
     
-    """
-    Allocate postal-code population to hexagons by area overlap.
-
-    Each hexagon gets:
-        sum((intersection_area / postal_area) * postal_population)
-
-    Parameters
-    ----------
-    grid : GeoDataFrame
-        Hexagon polygons. Must contain 'cell_id'.
-    postal_gdf : GeoDataFrame
-        Postal code boundary polygons.
-    population_df : DataFrame
-        DataFrame with postal code and population.
-    postal_code_col : str
-        Column in postal_gdf with postal code.
-    population_code_col : str
-        Column in population_df with postal code.
-    population_col : str
-        Column in population_df with population.
-
-    Returns
-    -------
-    grid_with_pop : GeoDataFrame
-        Grid with a new column 'hex_population'.
-    intersections : GeoDataFrame
-        Intersection table for debugging/inspection.
-    """
-
+    '''
+    This function allocates population to hexagonal grid cells based on the intersection of postal code polygons 
+    and the hexagonal grid. It calculates the share of each postal code's population that falls within each hexagon 
+    and sums these contributions to get the total population for each hexagon. It returns the grid with an added 
+    "hex_population" column and a GeoDataFrame of the intersections for further analysis if needed.
+    '''
     # Copy so original objects are untouched
     grid = grid.copy()
     postal_gdf = postal_gdf.copy()
