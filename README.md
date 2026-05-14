@@ -1,6 +1,14 @@
 # A Study on the Generation and Development of Metro Networks Using Genetic Algorithms
 Bachelor project in Data Science at the IT University of Copenhagen (ITU). The study of the use of genetic algorithms to create and optimize metro networks, in particular the Copenhagen metro system.
 
+## Key Features
+
+- Genetic algorithm implementation for metro network design and optimization
+- Multiple research stages: synthetic demand, build-from-scratch, and network extensions
+- Automated evaluation using demand coverage metrics
+- Visualization and result extraction tools
+- Full data processing pipeline from raw GTFS data to optimized networks
+
 ## Repository structure
 
 genetic-algorithms-metro-optimization/
@@ -42,6 +50,12 @@ genetic-algorithms-metro-optimization/
 - `README.md` - Project description and instructions
 - `data_loading.ipynb` - Exploratory notebook used during EDA for loading, filtering, and projecting GTFS data before structuring the final research workflow
 - `requirements.txt` - Python dependencies
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Git
+- Virtual environment support (venv, virtualenv, or conda)
 
 ## Installation
 
@@ -94,3 +108,11 @@ genetic-algorithms-metro-optimization/
 - This repository isresearch-oriented.
 - Use the notebooks to follow the full data processing and algorithm pipeline.
 - Results can be saved in `Results/` after the notebook cells or scripts are executed.
+
+## Authors
+
+Jevgenijs Burlakovs and Janus Sebastian Petersen - Bachelor Project, IT University of Copenhagen
+
+## License
+
+This project is provided for educational and research purposes.
