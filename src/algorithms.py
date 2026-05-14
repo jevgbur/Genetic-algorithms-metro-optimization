@@ -318,11 +318,14 @@ def normalize_generation(generation):
         )
         
         # final score
-        kid["Final score"] = ( (kid["Score as %"] / 100) - (
+        penalty = (
             0.10 * kid["Nodes_normalized"]
             + 0.35 * kid["Edges_normalized"]
             + 0.20 * kid["Transfer_normalized"]
-            + 0.35 * kid["Shortest_normalized"])
+            + 0.35 * kid["Shortest_normalized"]
         )
+
+        coverage = kid["Score as %"] / 100
+        kid["Final score"] = coverage * (1 - penalty)
 
     return generation
