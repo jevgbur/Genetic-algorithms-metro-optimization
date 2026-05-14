@@ -109,7 +109,6 @@ def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None)
     '''
     
     new_kid = {}
-
     index_list = random.sample(range(0, len(parents)), 2)  
 
     kid1_index = index_list[0]
@@ -119,6 +118,33 @@ def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None)
     number_of_routes = len(parents[0]) - 10
     
     for route in range(number_of_routes):
+        the_choice = random.choice([1, 2])
+        if the_choice == 1:
+            the_route = parents[kid1_index][route]
+            the_route = mutation_V2(the_route, mutation_rate, grid_neighbours, valid_connections)
+            new_kid[route] = the_route
+        else:
+            the_route = parents[kid2_index][route]
+            the_route = mutation_V2(the_route, mutation_rate, grid_neighbours, valid_connections)
+            new_kid[route] = the_route
+
+    return new_kid
+
+def bfs_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None):
+    '''
+    needs to be done
+    '''
+    
+    new_kid = {}
+    index_list = random.sample(range(0, len(parents)), 2)
+
+    kid1_index = index_list[0]
+    kid2_index = index_list[1]
+
+    # New part
+    route_keys = sorted(k for k in parents[0].keys() if isinstance(k, int))
+    
+    for route in route_keys:
         the_choice = random.choice([1, 2])
         if the_choice == 1:
             the_route = parents[kid1_index][route]
@@ -151,18 +177,12 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
                 existing_neighbor = route[-3]
             else:
                 existing_neighbor = None
-            #placement = "end"
 
             selected = grid_neighbours[grid_neighbours["cell_id"] == mutation_node]
 
             valid = selected["vicinity"].iloc[0]
 
             candidates = [n for n in valid if n not in (removed_node, existing_neighbor)]
-            # print(candidates)
-            #candidates_weight = []
-            #for i in candidates: 
-            #    candidates_weight.append(valid_connections.loc[valid_connections["cell_id"] == i, "weight"].iloc[0])
-            # print(candidates_weight)
 
             if not candidates:
                 new_connection = route[-1]
@@ -172,10 +192,6 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
                     return route
                 new_connection = random.choices(candidates, weights=candidates_weight, k=1)[0] 
 
-            #if placement == "start":
-            #    route[0] = new_connection
-            #else:
-            #    route[-1] = new_connection
             route[-1] = new_connection
 
         elif which_mutation == 2:
@@ -190,9 +206,7 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
                 candidates = [n for n in valid if n != route[-2]]
             else:
                 candidates = [n for n in valid]
-            #candidates_weight = []
-            #for i in candidates: 
-            #    candidates_weight.append(valid_connections.loc[valid_connections["cell_id"] == i, "weight"].iloc[0])
+
             candidates, candidates_weight = TriangleCheck(candidates, valid_connections, route)
             if not candidates:
                     return route
@@ -329,3 +343,154 @@ def normalize_generation(generation):
         kid["Final score"] = coverage * (1 - penalty)
 
     return generation
+
+def allocate_population_to_hexagons(grid, postal_gdf, population_df,
+                                    postal_code_col="postnummer",
+                                    population_code_col="postal_code",
+                                    population_col="population"):
+    
+    """
+    Allocate postal-code population to hexagons by area overlap.
+
+    Each hexagon gets:
+        sum((intersection_area / postal_area) * postal_population)
+
+    Parameters
+    ----------
+    grid : GeoDataFrame
+        Hexagon polygons. Must contain 'cell_id'.
+    postal_gdf : GeoDataFrame
+        Postal code boundary polygons.
+    population_df : DataFrame
+        DataFrame with postal code and population.
+    postal_code_col : str
+        Column in postal_gdf with postal code.
+    population_code_col : str
+        Column in population_df with postal code.
+    population_col : str
+        Column in population_df with population.
+
+    Returns
+    -------
+    grid_with_pop : GeoDataFrame
+        Grid with a new column 'hex_population'.
+    intersections : GeoDataFrame
+        Intersection table for debugging/inspection.
+    """
+
+    # Copy so original objects are untouched
+    grid = grid.copy()
+    postal_gdf = postal_gdf.copy()
+    population_df = population_df.copy()
+
+    # Make sure postal-code columns have same type
+    grid["cell_id"] = grid["cell_id"].astype(int)
+    postal_gdf[postal_code_col] = postal_gdf[postal_code_col].astype(str)
+    population_df[population_code_col] = population_df[population_code_col].astype(str)
+
+    # Clean population column
+    population_df[population_col] = pd.to_numeric(population_df[population_col], errors="coerce").fillna(0)
+
+    # Merge population into postal polygons
+    postal_gdf = postal_gdf.merge(
+        population_df[[population_code_col, population_col]],
+        left_on=postal_code_col,
+        right_on=population_code_col,
+        how="left"
+    )
+
+    postal_gdf[population_col] = postal_gdf[population_col].fillna(0)
+
+    # Reproject postal polygons to same CRS as grid
+    if postal_gdf.crs != grid.crs:
+        postal_gdf = postal_gdf.to_crs(grid.crs)
+
+    # Keep only polygons that intersect the grid area
+    postal_gdf = postal_gdf[postal_gdf.intersects(grid.union_all())].copy()
+
+    # Calculate total area of each postal polygon
+    postal_gdf["postal_area"] = postal_gdf.geometry.area
+
+    # Overlay = intersections between hexagons and postal code polygons
+    intersections = gpd.overlay(
+        grid[["cell_id", "geometry"]],
+        postal_gdf[[postal_code_col, population_col, "postal_area", "geometry"]],
+        how="intersection"
+    )
+
+    # Area of intersection
+    intersections["intersection_area"] = intersections.geometry.area
+
+    # Share of each postal code that lies inside each hexagon
+    intersections["postal_share_in_hex"] = (
+        intersections["intersection_area"] / intersections["postal_area"]
+    )
+
+    # Population contributed from postal code to hexagon
+    intersections["pop_contribution"] = (
+        intersections["postal_share_in_hex"] * intersections[population_col]
+    )
+
+    # Sum all postal-code contributions per hexagon
+    hex_pop = (
+        intersections.groupby("cell_id", as_index=False)["pop_contribution"]
+        .sum()
+        .rename(columns={"pop_contribution": "hex_population"})
+    )
+
+    # Attach to grid
+    grid_with_pop = grid.merge(hex_pop, on="cell_id", how="left")
+    grid_with_pop["hex_population"] = grid_with_pop["hex_population"].fillna(0)
+
+    return grid_with_pop, intersections
+
+def generate_trip_weight_V2(df, population_col="weight", seed=154):
+
+    # Set a seed so results are reproducible
+    random.seed(seed)
+
+    all_nodes = df["cell_id"].tolist()
+    pairs = list(combinations(all_nodes, 2))
+
+    o_list = []
+    d_list = []
+    weights_list = []
+    o_p_list = []
+    d_p_list = []
+
+    for nodes in pairs:
+        o = nodes[0]
+        d = nodes[1]
+
+        o_row = df.loc[df["cell_id"].eq(o)]
+        d_row = df.loc[df["cell_id"].eq(d)]
+
+        o_point = o_row["geometry"].iloc[0]
+        d_point = d_row["geometry"].iloc[0]
+
+        pop_o = o_row[population_col].iloc[0]
+        pop_d = d_row[population_col].iloc[0]
+
+        max_w = int(pop_o + pop_d)
+
+        # Random weight between 0 and sum of origin+destination population
+        if max_w <= 0:
+            w = 0
+        else:
+            w = random.randint(0, max_w)
+
+        o_list.append(o)
+        d_list.append(d)
+        weights_list.append(w)
+        o_p_list.append(o_point)
+        d_p_list.append(d_point)
+
+    pair_df = pd.DataFrame({
+        "o": o_list,
+        "d": d_list,
+        "weight": weights_list,
+        "o-point": o_p_list,
+        "d-point": d_p_list
+    })
+
+    return pair_df

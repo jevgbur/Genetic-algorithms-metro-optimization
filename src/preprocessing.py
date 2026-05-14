@@ -197,3 +197,31 @@ def Create_grid_1(res, prompt_1, proj_crs, prompt_2=False, prompt_3=False, retur
         return grid_inside, points, my_polygon
     else:
         return grid_inside
+
+def clean_postal_codes(path):
+    file_path = Path(path)
+    rows = []
+
+    with open(file_path, "r", encoding="latin1") as f:
+        next(f)  
+
+        for line in f:
+            parts = [p.strip().strip('"') for p in line.split(",")]
+
+            if len(parts) >= 4:
+                postcode_text = parts[2]
+                population_text = parts[-1] 
+                if postcode_text[:4].isdigit():
+                    rows.append({
+                        "postal_code": postcode_text[:4],
+                        "population": population_text
+                    })
+
+    pop_df = pd.DataFrame(rows)
+
+    pop_df["postal_code"] = pop_df["postal_code"].astype(str).str.zfill(4)
+    pop_df["population"] = pd.to_numeric(pop_df["population"], errors="coerce")
+
+    pop_df = pop_df.dropna(subset=["postal_code", "population"])
+
+    return pop_df
