@@ -60,6 +60,57 @@ def generate_trip_weight(df, rangestart, rangestop):
     
     return pair_df
 
+def generate_trip_weight_V2(df, population_col="weight", seed=154):
+
+    # Set a seed so results are reproducible
+    random.seed(seed)
+
+    all_nodes = df["cell_id"].tolist()
+    pairs = list(combinations(all_nodes, 2))
+
+    o_list = []
+    d_list = []
+    weights_list = []
+    o_p_list = []
+    d_p_list = []
+
+    for nodes in pairs:
+        o = nodes[0]
+        d = nodes[1]
+
+        o_row = df.loc[df["cell_id"].eq(o)]
+        d_row = df.loc[df["cell_id"].eq(d)]
+
+        o_point = o_row["geometry"].iloc[0]
+        d_point = d_row["geometry"].iloc[0]
+
+        pop_o = o_row[population_col].iloc[0]
+        pop_d = d_row[population_col].iloc[0]
+
+        max_w = int(pop_o + pop_d)
+
+        # Random weight between 0 and sum of origin+destination population
+        if max_w <= 0:
+            w = 0
+        else:
+            w = random.randint(0, max_w)
+
+        o_list.append(o)
+        d_list.append(d)
+        weights_list.append(w)
+        o_p_list.append(o_point)
+        d_p_list.append(d_point)
+
+    pair_df = pd.DataFrame({
+        "o": o_list,
+        "d": d_list,
+        "weight": weights_list,
+        "o-point": o_p_list,
+        "d-point": d_p_list
+    })
+
+    return pair_df
+
 def create_weights(df, od_df):
     weighted_df = df.copy()
     weighted_df["weight"] = ""

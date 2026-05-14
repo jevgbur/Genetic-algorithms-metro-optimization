@@ -5,6 +5,60 @@ import networkx as nx
 from itertools import combinations
 import geopandas as gpd
 
+def extension_cal_scoreV2(G, od_df, neighbor_df, pair_weights, G_metro=None):
+    # combine existing metro + candidate network
+    if G_metro is not None:
+        evaluation_graph = G_metro.copy()
+        evaluation_graph.add_nodes_from(G.nodes(data=True))
+        evaluation_graph.add_edges_from(G.edges(data=True))
+    else:
+        evaluation_graph = G.copy()
+
+    # demand coverage graph should also include existing metro + candidate
+    demand_graph = evaluation_graph.copy()
+
+    vicinity_lookup = neighbor_df.set_index("cell_id")["vicinity"].to_dict()
+
+    nodes_to_add = set()
+    for node in evaluation_graph.nodes():
+        nodes_to_add.update(vicinity_lookup.get(node, []))
+
+    demand_graph.add_nodes_from(nodes_to_add)
+
+    temp_score = 0
+    pairs = list(combinations(demand_graph.nodes(), 2))
+
+    for node1, node2 in pairs:
+        key = (min(node1, node2), max(node1, node2))
+        temp_score += pair_weights.get(key, 0)
+
+    total_demand = od_df["weight"].sum()
+    evaluation_score = (temp_score / total_demand) * 100
+
+    shortest_paths = dict(nx.shortest_path(evaluation_graph))
+
+    total_path_length = 0
+    total_pairs = 0
+    total_transfers = 0
+
+    for origin in shortest_paths:
+        for destination in shortest_paths[origin]:
+            if origin == destination:
+                continue
+
+            path = shortest_paths[origin][destination]
+            path_length = len(path) - 1
+            transfers = count_transfers(evaluation_graph, path)
+
+            total_path_length += path_length
+            total_pairs += 1
+            total_transfers += transfers
+
+    average_shortest_path = total_path_length / total_pairs
+    average_transfers = total_transfers / total_pairs
+
+    return evaluation_score, average_shortest_path, average_transfers
+
 def cal_scoreV2(G, od_df, neighbor_df, pair_weights):  
     demand_graph = G.copy()
     vicinity_lookup = neighbor_df.set_index("cell_id")["vicinity"].to_dict()
@@ -72,6 +126,33 @@ def select_parents(generation, top_performers, random_performers, sample_size, n
             best_performing.append(best)
     return best_performing
 
+def extension_TriangleCheck(poss_neighbors, valid_connections, route_current, G_metro):
+
+    curr_node = route_current[-1]
+    
+    passed_neighbors = []
+    neighbor_weights = []
+
+    if len(route_current) > 1:
+        past_node = route_current[-2]
+    else:
+        past_node = None
+
+    for neighbor in poss_neighbors:
+        # check if neighbor is already connected to current node in G_metro, if so skip
+        if (curr_node, neighbor) in G_metro.edges() or (neighbor, curr_node) in G_metro.edges():
+            continue
+        else:
+            triangle_check_neighbors = valid_connections.loc[valid_connections.cell_id==neighbor, "vicinity"].values[0]
+            # make this statement check if past_node exist check
+            if past_node is not None and past_node in triangle_check_neighbors:
+                continue
+            else:
+                passed_neighbors.append(neighbor)
+                neighbor_weights.append(valid_connections.loc[valid_connections["cell_id"] == neighbor, "weight"].iloc[0])
+    
+    return passed_neighbors, neighbor_weights
+
 def TriangleCheck(poss_neighbors, valid_connections, route_current):
 
     passed_neighbors = []
@@ -103,6 +184,34 @@ def deadend_handeling(neighbor_nodes, route_current, min_stops, has_reversed):
         return route_current, False, has_reversed
 
     return route_current, False, has_reversed
+
+def extenstion_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None, G_metro=None):
+    '''
+    needs to be done
+    '''
+    
+    new_kid = {}
+
+    index_list = random.sample(range(0, len(parents)), 2)  
+
+    kid1_index = index_list[0]
+    kid2_index = index_list[1]
+
+    # New part
+    route_keys = sorted(k for k in parents[0].keys() if isinstance(k, int))
+    
+    for route in route_keys:
+        the_choice = random.choice([1, 2])
+        if the_choice == 1:
+            the_route = parents[kid1_index][route]
+            the_route = extenstion_mutation(the_route, mutation_rate, grid_neighbours, valid_connections, G_metro)
+            new_kid[route] = the_route
+        else:
+            the_route = parents[kid2_index][route]
+            the_route = extenstion_mutation(the_route, mutation_rate, grid_neighbours, valid_connections, G_metro)
+            new_kid[route] = the_route
+
+    return new_kid
 
 def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None):
     '''
@@ -157,6 +266,66 @@ def bfs_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=N
             new_kid[route] = the_route
 
     return new_kid
+
+def extenstion_mutation(route, mutation_rate, grid_neighbours, valid_connections, G_metro):
+    ### "This whole function could be written nicer" - Jev
+    mutation_cause = np.random.choice([True, False], size=1, p=[mutation_rate, 1-mutation_rate])
+
+    # 1 = change end node
+    # 2 = remove end node
+    # 3 = add new node at the end
+    if mutation_cause:
+        if len(route) <= 2:
+            which_mutation = np.random.choice([1, 3])
+        else:
+            which_mutation = np.random.choice([1, 2, 3])
+
+        if which_mutation == 1:                   
+            mutation_node = route[-2]
+            removed_node = route[-1]
+            if len(route) > 2:
+                existing_neighbor = route[-3]
+            else:
+                existing_neighbor = None
+            #placement = "end"
+
+            selected = grid_neighbours[grid_neighbours["cell_id"] == mutation_node]
+
+            valid = selected["vicinity"].iloc[0]
+
+            candidates = [n for n in valid if n not in (removed_node, existing_neighbor)]
+
+            if not candidates:
+                new_connection = route[-1]
+            else:
+                candidates, candidates_weight = extension_TriangleCheck(candidates, valid_connections, route, G_metro)
+                if not candidates:
+                    return route
+                new_connection = random.choices(candidates, weights=candidates_weight, k=1)[0] 
+
+            route[-1] = new_connection
+
+        elif which_mutation == 2:
+            route.pop()
+
+        else:
+            selected = grid_neighbours[grid_neighbours["cell_id"] == route[-1]]
+            valid = selected["vicinity"].iloc[0]
+            if len(valid) == 0:
+                return route
+            elif len(route) > 1:
+                candidates = [n for n in valid if n != route[-2]]
+            else:
+                candidates = [n for n in valid]
+            
+            candidates, candidates_weight = extension_TriangleCheck(candidates, valid_connections, route, G_metro)
+            if not candidates:
+                    return route
+            new_connection = random.choices(candidates, weights=candidates_weight, k=1)[0] 
+            route.append(new_connection)
+
+
+    return route
 
 def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
     ### "This whole function could be written nicer" - Jev
@@ -216,53 +385,6 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
 
     return route
 
-def generate_trip_weight(df, rangestart, rangestop):
-
-    # Set a seed so we dont need to save the file locally
-    random.seed(154)
-
-    all_nodes = df["cell_id"].tolist()
-
-    pairs = list(combinations(all_nodes, 2))
-
-    o_list = []
-    d_list = []
-    weights_list = []
-    o_p_list = []
-    d_p_list = []
-
-    for nodes in pairs:
-        ## find the values from the created pairs
-        w = random.randrange(rangestart, rangestop)
-        o = nodes[0]
-        d = nodes[1]
-
-        o_row = df.loc[df['cell_id'].eq(o)]
-        d_row = df.loc[df['cell_id'].eq(d)]
-
-        o_point = o_row["geometry"].iloc[0] 
-        d_point = d_row["geometry"].iloc[0] 
-        
-        ## Appending to their list for later population
-        o_list.append(o)
-        d_list.append(d)
-        weights_list.append(w)
-        o_p_list.append(o_point)
-        d_p_list.append(d_point)
-
-
-    pair_df = pd.DataFrame({
-            "o": o_list,
-            "d": d_list,
-            "weight": weights_list,
-            "o-point": o_p_list,
-            "d-point": d_p_list
-        })
-    
-    # Uncoment this to save pair combinations as dataframe
-    #pair_df.to_csv("od_tabel") 
-    
-    return pair_df
 
 def count_transfers(G, path):
     if len(path) < 2:
@@ -445,53 +567,3 @@ def allocate_population_to_hexagons(grid, postal_gdf, population_df,
 
     return grid_with_pop, intersections
 
-def generate_trip_weight_V2(df, population_col="weight", seed=154):
-
-    # Set a seed so results are reproducible
-    random.seed(seed)
-
-    all_nodes = df["cell_id"].tolist()
-    pairs = list(combinations(all_nodes, 2))
-
-    o_list = []
-    d_list = []
-    weights_list = []
-    o_p_list = []
-    d_p_list = []
-
-    for nodes in pairs:
-        o = nodes[0]
-        d = nodes[1]
-
-        o_row = df.loc[df["cell_id"].eq(o)]
-        d_row = df.loc[df["cell_id"].eq(d)]
-
-        o_point = o_row["geometry"].iloc[0]
-        d_point = d_row["geometry"].iloc[0]
-
-        pop_o = o_row[population_col].iloc[0]
-        pop_d = d_row[population_col].iloc[0]
-
-        max_w = int(pop_o + pop_d)
-
-        # Random weight between 0 and sum of origin+destination population
-        if max_w <= 0:
-            w = 0
-        else:
-            w = random.randint(0, max_w)
-
-        o_list.append(o)
-        d_list.append(d)
-        weights_list.append(w)
-        o_p_list.append(o_point)
-        d_p_list.append(d_point)
-
-    pair_df = pd.DataFrame({
-        "o": o_list,
-        "d": d_list,
-        "weight": weights_list,
-        "o-point": o_p_list,
-        "d-point": d_p_list
-    })
-
-    return pair_df
