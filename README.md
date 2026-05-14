@@ -1,4 +1,4 @@
-# Bachelor Project Title
+# A Study on the Generation and Development of Metro Networks Using Genetic Algorithms
 Bachelor project in Data Science at the IT University of Copenhagen (ITU). The study of the use of genetic algorithms to create and optimize metro networks, in particular the Copenhagen metro system.
 
 ## Repository structure
@@ -12,20 +12,22 @@ genetic-algorithms-metro-optimization/
      - `Built_from_scratch_population/` - Base+
      - `Extension_Population/` - Base++
 
-     For each of these research stage its own folder contains:
-      - `*_best_by_coverage.csv` - per-cycle metric based on best performer
-      - `*_best_by_coverage_averages.csv` - average metrics across cycles
-      - `Cycle_01/ … Cycle_10/` - per-cycle run output, including: pickle file with saved run state, two image files with visualizations
+     For each research stage folder:
+     - `*_best_by_coverage.csv` - per-cycle best coverage metrics
+     - `*_best_by_coverage_averages.csv` - average metrics across cycles
+     - `Cycle_01/` … `Cycle_10/` - per-cycle run output with:
+          - one `.pkl` file with saved run state
+          - two image files with visualizations
 
-- `basic_genetic/` - Jupyter notebooks implementing algorithms
-     - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments, including preprocessing, synthetic OD matrix preparation, evaluation, and visualizations
-     - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data with preprocessing, OD matrix preparation, evaluation, and visualizations
-     - `GA_extensions.ipynb` - Main extension notebook with preprocessing, OD generation, evaluation, and visualizations
+- `basic_genetic/` - Jupyter notebooks implementing algorithms, including preprocessing, OD matrix preparation, Genetic algorithm process, performance evaluation, and visualizations
+     - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments
+     - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data 
+     - `GA_extensions.ipynb` - main notebook for current metro network extensions
 
 - `data/`
      - `Postal_code_data/` - Population data based on postal codes and district regions (TBA)
      - `raw/` - Original, untouched data
-          - `GTFS_Copenhagen.zip/` - contains transit feed data used to identify metro stops and routes (TBA)
+          - `GTFS_Copenhagen.zip/` - contains transit feed data used to identify metro stops and routes, not stored in GitHub, due to the size
           - `README.md` - explanation of the data location
      - `od_data_matrix.csv` - Looks like it is the the same file as the next one (TBA)
      - `synthetic_od_data_matrix.csv` - TBA
