@@ -8,18 +8,16 @@ genetic-algorithms-metro-optimization/
      - `extraction_performers.py` - script for extracting performance metrics (TBA)
 
      Research stages:
-     - `Synthetic/`
-     - `Built_from_scratch_population/` 
-     - `Extension_Population/`
+     - `Synthetic/` - Base 
+     - `Built_from_scratch_population/` - Base+
+     - `Extension_Population/` - Base++
 
      For each of these research stage its own folder contains:
       - `*_best_by_coverage.csv` - per-cycle metric based on best performer
       - `*_best_by_coverage_averages.csv` - average metrics across cycles
-      - `Cycle_01/ … Cycle_10/` - per-cycle run output, including:
-                                                  - .pkl file with saved run state
-                                                  - two image files with visualizations
+      - `Cycle_01/ … Cycle_10/` - per-cycle run output, including: pickle file with saved run state, two image files with visualizations
 
-- `basic_genetic/` - Jupyter notebooks implementing data preparation, grid creation, population allocation, and genetic algorithm experiments
+- `basic_genetic/` - Jupyter notebooks implementing algorithms
      - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments, including preprocessing, synthetic OD matrix preparation, evaluation, and visualizations
      - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data with preprocessing, OD matrix preparation, evaluation, and visualizations
      - `GA_extensions.ipynb` - Main extension notebook with preprocessing, OD generation, evaluation, and visualizations
@@ -72,8 +70,12 @@ pip install -r requirements.txt
   - `src/algorithms.py`
   - `src/visualizations.py`
 
-## Algorithms - ???
+## Algorithms 
 
+- Genetic algorithm for metro network design 
+- Encodes candidate networks and evaluates them using demand coverage 
+- Uses parent selection, crossover, mutation, and iterative improvement
+- Implemented in `src/algorithms.py` and explored in the notebooks for each research stage
 
 
 ## Notes
