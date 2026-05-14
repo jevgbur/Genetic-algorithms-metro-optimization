@@ -3,6 +3,7 @@ import random
 import numpy as np
 import networkx as nx
 from itertools import combinations
+import geopandas as gpd
 
 def cal_scoreV2(G, od_df, neighbor_df, pair_weights):  
     demand_graph = G.copy()
