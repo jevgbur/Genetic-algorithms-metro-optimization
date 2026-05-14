@@ -19,7 +19,7 @@ genetic-algorithms-metro-optimization/
           - one `.pkl` file with saved run state
           - two image files with visualizations
 
-- `basic_genetic/` - Jupyter notebooks implementing algorithms, including preprocessing, OD matrix preparation, Genetic algorithm process, performance evaluation, and visualizations
+- `basic_genetic/` - Jupyter notebooks for the genetic algorithm workflow: preprocessing, OD matrix preparation, algorithm execution, evaluation, and visualizations
      - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments
      - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data 
      - `GA_extensions.ipynb` - main notebook for current metro network extensions
@@ -46,31 +46,40 @@ genetic-algorithms-metro-optimization/
 ## Installation
 
 1. Clone the repository.
-2. Create a Python virtual environment.
+2. Create and activate a Python virtual environment:
+   - **macOS/Linux:**
+     ```sh
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
+   - **Windows:**
+     ```sh
+     python -m venv .venv
+     .venv\Scripts\activate
+     ```
 3. Install dependencies:
-
-```sh
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+   ```sh
+   pip install -r requirements.txt
+   ```
 
 ## Usage - how to run the code
 
-- Open the notebooks in `basic_genetic/` using Jupyter Notebook or JupyterLab:
+1. Open the notebooks in `basic_genetic/` using Jupyter Notebook or JupyterLab.
 
-- For example, start with `basic_genetic/GA_synthetic.ipynb` for the main workflow:
-  - grid creation
-  - synthetic population creation
-  - OD matrix preparation
-  - running the Genetic algorithm
-  - Genetic algorithm evaluation
+2. For example, start with `basic_genetic/GA_synthetic.ipynb` and run cells sequentially:
+   - grid creation
+   - synthetic population creation
+   - OD matrix preparation
+   - running the Genetic algorithm
+   - Genetic algorithm evaluation
 
-- This notebook uses the Python modules imported from:
-  - `src/preprocessing.py`
-  - `src/analysis.py`
-  - `src/algorithms.py`
-  - `src/visualizations.py`
+3. The notebooks import and use the following Python modules:
+   - `src/preprocessing.py` 
+   - `src/analysis.py` 
+   - `src/algorithms.py` 
+   - `src/visualizations.py` 
+
+4. Results can be saved to `Results/` after execution, follow the instructions given at the beginning of the notebook.
 
 ## Algorithms 
 
