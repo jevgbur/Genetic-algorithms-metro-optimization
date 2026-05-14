@@ -7,32 +7,29 @@ genetic-algorithms-metro-optimization/
 - `Results/`
      - `extraction_performers.py` - script for extracting performance metrics (TBA)
 
+     Research stages:
      - `Synthetic/`
-          - `Synthetic_best_by_coverage_averages.csv` -
-          - `Synthetic_best_by_coverage.csv` -
-          - `Cycle_01/` … `Cycle_10/` -
-
      - `Built_from_scratch_population/` 
-          - `Built_from_scratch_population_best_by_coverage_averages.csv` -
-          - `Built_from_scratch_population_best_by_coverage.csv` -
-          - `Cycle_01/` … `Cycle_10/` - 
-
      - `Extension_Population/`
-          - `Extension_Population_best_by_coverage_averages.csv` -
-          - `Extension_Population_best_by_coverage.csv` -
-          - `Cycle_01/` … `Cycle_10/` -
+
+     For each of these research stage its own folder contains:
+      - `*_best_by_coverage.csv` - per-cycle metric based on best performer
+      - `*_best_by_coverage_averages.csv` - average metrics across cycles
+      - `Cycle_01/ … Cycle_10/` - per-cycle run output, including:
+                                                  - .pkl file with saved run state
+                                                  - two image files with visualizations
 
 - `basic_genetic/` - Jupyter notebooks implementing data preparation, grid creation, population allocation, and genetic algorithm experiments
-     - `GA_synthetic.ipynb` - TBA
-     - `GA_district_pop.ipynb`- TBA
-     - `GA_extensions.ipynb` - Main extension notebook with preprocessing, OD generation, evaluation, and visualization
+     - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments, including preprocessing, synthetic OD matrix preparation, evaluation, and visualizations
+     - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data with preprocessing, OD matrix preparation, evaluation, and visualizations
+     - `GA_extensions.ipynb` - Main extension notebook with preprocessing, OD generation, evaluation, and visualizations
 
 - `data/`
      - `Postal_code_data/` - Population data based on postal codes and district regions (TBA)
      - `raw/` - Original, untouched data
           - `GTFS_Copenhagen.zip/` - contains transit feed data used to identify metro stops and routes (TBA)
-          - `README.md` - TBA
-     - `od_data_matrix.csv` - Looks like it is the the same file as the next one
+          - `README.md` - explanation of the data location
+     - `od_data_matrix.csv` - Looks like it is the the same file as the next one (TBA)
      - `synthetic_od_data_matrix.csv` - TBA
 
 - `src/`
