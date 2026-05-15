@@ -71,11 +71,17 @@ Used primarily for generating figures, tables, and visual reports from research 
 2. Create and activate a Python virtual environment:
    - **macOS/Linux:**
      ```sh
+     # For recommended Python 3.12:
+     python3.12 -m venv .venv
+     # Or for any Python 3 version:
      python3 -m venv .venv
      source .venv/bin/activate
      ```
    - **Windows:**
      ```sh
+     # For recommended Python 3.12:
+     python3.12 -m venv .venv
+     # Or:
      python -m venv .venv
      .venv\Scripts\activate
      ```
