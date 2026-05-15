@@ -1,20 +1,7 @@
-from pathlib import Path
-import zipfile
-import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
-import contextily as cx
-import random
-from shapely.geometry import LineString, Polygon, Point, MultiPolygon
-import numpy as np
-import networkx as nx
-from itertools import combinations
-import osmnx as ox
-import tobler
-from collections import defaultdict
-import pickle
 
-# -------- LINE CREATION --------
+import geopandas as gpd
+from shapely.geometry import LineString
+
 def create_line(p1_id, p2_id, gdf_stops):
     '''
     This function creates a LineString geometry between two points (p1 and p2) based on their IDs and a GeoDataFrame of stops.
@@ -31,7 +18,6 @@ def create_line(p1_id, p2_id, gdf_stops):
 
     return LineString([p1, p2])
 
-# -------- BUILD SOLUTION EDGES --------
 def metro_edges_gdf(solution_routes_dict, gdf_stops):
     '''
     This function builds a GeoDataFrame of edges representing the routes in the solution.
@@ -60,7 +46,7 @@ def metro_edges_gdf(solution_routes_dict, gdf_stops):
 
     return gpd.GeoDataFrame(records, geometry="geometry", crs=gdf_stops.crs)
 
-# -------- BUILD G_METRO EDGES --------
+
 def build_graph_edges_gdf(G, gdf_stops, node_col="cell_id"):
     '''
     This function builds a GeoDataFrame of edges representing the connections in the graph G.
@@ -88,7 +74,6 @@ def build_graph_edges_gdf(G, gdf_stops, node_col="cell_id"):
     return gpd.GeoDataFrame(records, geometry="geometry", crs=gdf_stops.crs)
 
 
-# -------- BUILD EDGES --------
 def build_edges_gdf(solution_routes_dict, gdf_stops):
     '''
     This function builds a GeoDataFrame of edges representing the routes in the solution.

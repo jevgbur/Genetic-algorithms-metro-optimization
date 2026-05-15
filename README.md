@@ -13,7 +13,6 @@ Bachelor project in Data Science at the IT University of Copenhagen (ITU). The s
 
 genetic-algorithms-metro-optimization/
 - `Results/`
-     - `extraction_performers.py` - script for extracting performance metrics (TBA)
 
      Research stages:
      - `Synthetic/` - Base 
@@ -27,28 +26,36 @@ genetic-algorithms-metro-optimization/
           - one `.pkl` file with saved run state
           - two image files with visualizations
 
-- `basic_genetic/` - Jupyter notebooks for the genetic algorithm workflow: preprocessing, OD matrix preparation, algorithm execution, evaluation, and visualizations
+- `Visualizations_notebooks/` - **Report and presentation notebooks** 
+      - `Implement_M5_visual.ipynb` - Visualization of M5 implementation and network design
+      - `Population_visualizations.ipynb` - Visualizations for population-based research results
+      - `Synthetic_visualizations.ipynb` - Visualizations for synthetic demand experiments
+Contains utility functions embedded within notebooks (functions should ideally be in `src/`)
+Used primarily for generating figures, tables, and visual reports from research results.
+
+- `Genetic_algo/` - **Jupyter notebooks for the genetic algorithm workflow: preprocessing, OD matrix preparation, algorithm execution, evaluation, and visualizations**
      - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments
      - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data 
      - `GA_extensions.ipynb` - main notebook for current metro network extensions
 
 - `data/`
-     - `Postal_code_data/` - Population data based on postal codes and district regions (TBA)
+     - `Postal_code_data/` - Population and geographic data for postal code districts
+          - `20264139490617746621POSTNR139926258718.csv` - Population counts by Danish postal code
+          - `86249533323639c4792ccbd48b0d9449f543d83f9e5a2f612a7ae700bb08c9ac/wgs84_geojson/` - GeoJSON boundaries for postal code districts (WGS84 projection)
      - `raw/` - Original, untouched data
           - `GTFS_Copenhagen.zip/` - contains transit feed data used to identify metro stops and routes, not stored in GitHub, due to the size
           - `README.md` - explanation of the data location
-     - `od_data_matrix.csv` - Looks like it is the the same file as the next one (TBA)
-     - `synthetic_od_data_matrix.csv` - TBA
+     - `od_data_matrix.csv` - Origin-destination matrix for Base+ and Base++ stages of the research, based on postal population 
+     - `synthetic_od_data_matrix.csv` - Origin-destination matrix for Base stage of the research, the range is based on the number of passengers in Copenhagen metro stations.
 
 - `src/`
      - `preprocessing.py`-  Data cleaning and required preprocessing functions, before implementing algorithm
-     - `analysis.py` - Analysis function
      - `algorithms.py` - Model/Algorithm training and evaluation
      - `visualizations.py`- Plotting functions
 
 - `.gitignore` - Files ignored by Git
 - `README.md` - Project description and instructions
-- `data_loading.ipynb` - Exploratory notebook used during EDA for loading, filtering, and projecting GTFS data before structuring the final research workflow
+- `gtfs_data_loading.ipynb` - Exploratory notebook used during EDA for loading, filtering, and projecting GTFS data before structuring the final research workflow
 - `requirements.txt` - Python dependencies
 
 ## Prerequisites

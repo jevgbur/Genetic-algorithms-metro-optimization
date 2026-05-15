@@ -1,18 +1,11 @@
 from pathlib import Path
-import zipfile
 import pandas as pd
 import geopandas as gpd
-import matplotlib.pyplot as plt
-import contextily as cx
 import random
-from shapely.geometry import LineString, Polygon, Point, MultiPolygon
-import numpy as np
-import networkx as nx
+from shapely.geometry import Polygon, Point, MultiPolygon
 from itertools import combinations
 import osmnx as ox
 import tobler
-from collections import defaultdict
-import pickle
 
 
 def generate_trip_weight(df, rangestart, rangestop):

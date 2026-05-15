@@ -85,8 +85,6 @@ def cal_scoreV2(G, od_df, neighbor_df, pair_weights):
     total_demand = od_df["weight"].sum()
     evaluation_score = (temp_score / total_demand) * 100
     
-    ######################################### New part 
-    
     shortest_paths = dict(nx.shortest_path(G))
     
     total_path_length = 0
@@ -225,7 +223,6 @@ def extenstion_crossover(parents, grid_neighbours, mutation_rate=0, valid_connec
     kid1_index = index_list[0]
     kid2_index = index_list[1]
 
-    # New part
     route_keys = sorted(k for k in parents[0].keys() if isinstance(k, int))
     
     for route in route_keys:
@@ -257,7 +254,7 @@ def crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=None)
     kid1_index = index_list[0]
     kid2_index = index_list[1]
 
-    # It was -2 before, but i added the "Number of nodes", and all other metadata so now it is - 10
+    # It was -2 before, but because of metadata added it is -10
     number_of_routes = len(parents[0]) - 10
     
     for route in range(number_of_routes):
@@ -290,7 +287,6 @@ def bfs_crossover(parents, grid_neighbours, mutation_rate=0, valid_connections=N
     kid1_index = index_list[0]
     kid2_index = index_list[1]
 
-    # New part
     route_keys = sorted(k for k in parents[0].keys() if isinstance(k, int))
     
     for route in route_keys:
@@ -314,7 +310,7 @@ def extenstion_mutation(route, mutation_rate, grid_neighbours, valid_connections
     - removing the end node
     - adding a new node at the end. 
     '''
-    ### "This whole function could be written nicer" - Jev
+
     mutation_cause = np.random.choice([True, False], size=1, p=[mutation_rate, 1-mutation_rate])
 
     # 1 = change end node
@@ -381,7 +377,7 @@ def mutation_V2(route, mutation_rate, grid_neighbours, valid_connections):
     - removing the end node
     - adding a new node at the end. 
     '''
-    ### "This whole function could be written nicer" - Jev
+    
     mutation_cause = np.random.choice([True, False], size=1, p=[mutation_rate, 1-mutation_rate])
 
     # 1 = change end node
