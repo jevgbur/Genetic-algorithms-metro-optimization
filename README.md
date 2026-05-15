@@ -61,7 +61,7 @@ Used primarily for generating figures, tables, and visual reports from research 
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Recommended Python version: 3.12
 - Git
 - Virtual environment support (venv, virtualenv, or conda)
 
