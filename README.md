@@ -12,6 +12,11 @@ Bachelor project in Data Science at the IT University of Copenhagen (ITU). The s
 ## Repository structure
 
 genetic-algorithms-metro-optimization/
+- `Genetic_algo/` - **Jupyter notebooks for the genetic algorithm workflow: preprocessing, OD matrix preparation, algorithm execution, evaluation, and visualizations**
+     - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments
+     - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data 
+     - `GA_extensions.ipynb` - main notebook for current metro network extensions
+
 - `Results/`
 
      Research stages:
@@ -27,16 +32,12 @@ genetic-algorithms-metro-optimization/
           - two image files with visualizations
 
 - `Visualizations_notebooks/` - **Report and presentation notebooks** 
-      - `Implement_M5_visual.ipynb` - Visualization of M5 implementation and network design
-      - `Population_visualizations.ipynb` - Visualizations for population-based research results
-      - `Synthetic_visualizations.ipynb` - Visualizations for synthetic demand experiments
+     - `Implement_M5_visual.ipynb` - Visualization of M5 implementation and network design
+     - `Population_visualizations.ipynb` - Visualizations for population-based research results
+     - `Synthetic_visualizations.ipynb` - Visualizations for synthetic demand experiments
+     
 Contains utility functions embedded within notebooks (functions should ideally be in `src/`)
 Used primarily for generating figures, tables, and visual reports from research results.
-
-- `Genetic_algo/` - **Jupyter notebooks for the genetic algorithm workflow: preprocessing, OD matrix preparation, algorithm execution, evaluation, and visualizations**
-     - `GA_synthetic.ipynb` -  main notebook for synthetic demand experiments
-     - `GA_district_pop.ipynb`- main notebook for build-from-scratch metro network experiments, including population data 
-     - `GA_extensions.ipynb` - main notebook for current metro network extensions
 
 - `data/`
      - `Postal_code_data/` - Population and geographic data for postal code districts
